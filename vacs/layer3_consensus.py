@@ -107,14 +107,14 @@ class HamiltonianConsensus:
                 coalition = frozenset(coalition_tuple)
                 
                 # Identify the answer with max support within this coalition
-                votes_in_coalition = [agent_votes[j] for j in coalition]
+                votes_in_coalition = [agent_votes[j] for j in coalition if j in agent_votes and agent_votes[j] is not None]
                 unique_votes = set(votes_in_coalition)
                 
                 max_weighted_vote = 0.0
                 for vote in unique_votes:
                     current_weighted_vote = 0.0
                     for member in coalition:
-                        if agent_votes[member] == vote:
+                        if member in agent_votes and agent_votes[member] == vote:
                             current_weighted_vote += alignment_scores[member]
                     if current_weighted_vote > max_weighted_vote:
                         max_weighted_vote = current_weighted_vote
@@ -128,12 +128,13 @@ class HamiltonianConsensus:
         # Maximize sum nu_j * rho_j * 1(y^j == y)
         
         vote_scores = {}
-        unique_answers = set(agent_votes.values())
+        unique_answers = set(votes_in_coalition) # Use safe set from loop? No, need global unique answers
+        unique_answers = set([v for v in agent_votes.values() if v is not None])
         
         for ans in unique_answers:
             score = 0.0
             for j in range(self.num_agents):
-                if agent_votes[j] == ans:
+                if j in agent_votes and agent_votes[j] == ans:
                     # Score contribution: credit * alignment
                     score += nucleolus_credits[j] * alignment_scores[j]
             vote_scores[ans] = score

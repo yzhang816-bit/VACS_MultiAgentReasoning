@@ -1,79 +1,100 @@
 # VACS: Value-Aligned Compositional Shielding for Multi-Agent Reasoning
 
-This repository contains the implementation and experimental code for the paper **"VACS: Value-Aligned Compositional Shielding for Multi-Agent Reasoning"**.
+This repository contains the official implementation and experimental code for the paper **"VACS: Value-Aligned Compositional Shielding for Multi-Agent Reasoning"**.
 
-VACS is a four-layer framework designed to align multi-agent reasoning systems with heterogeneous value priorities. It integrates:
-1.  **Value Profiling**: Inferring agent values from behavior.
-2.  **Compositional Shielding**: Enforcing safety constraints via assume-guarantee reasoning.
-3.  **Hamiltonian Consensus**: Resolving conflicts using nucleolus-weighted optimization.
-4.  **Faithful Explanation**: Generating explanations grounded in the formal proof structure.
+VACS is a four-layer framework designed to align multi-agent reasoning systems with heterogeneous value priorities (e.g., safety vs. efficiency). It integrates:
+1.  **Value Profiling**: Inferring latent agent value weights from behavioral preferences (Layer 1).
+2.  **Compositional Shielding**: Enforcing safety constraints via assume-guarantee reasoning (Layer 2).
+3.  **Hamiltonian Consensus**: Resolving conflicts using nucleolus-weighted optimization (Layer 3).
+4.  **Faithful Explanation**: Generating explanations grounded in the formal proof structure (Layer 4).
 
-## Repository Structure
+## 📂 Repository Structure
 
-```
+```text
 VACS_MultiAgentReasoning/
-├── data/                   # Benchmark datasets
-│   ├── math_subset.csv     # MathInstruct (Reasoning) subset (N=200)
-│   └── nejm_qa.csv         # NEJM-AI QA (Clinical) benchmark
-├── experiments/            # Experiment scripts
-│   ├── run_vacs.py         # Main entry point for VACS experiments
-│   ├── ablation_study.py   # Script to reproduce ablation results (Table 3)
-│   └── run_baselines.py    # Baseline methods (Majority Vote, etc.)
-├── vacs/                   # Core framework implementation
-│   ├── layer1_...py        # Value profiling & IRL
-│   ├── layer2_...py        # Shielding & Safety constraints
-│   ├── layer3_...py        # Consensus & Nucleolus calculation
-│   ├── layer4_...py        # Explanation generation
-│   └── utils.py            # Helpers (including robust answer normalization)
-└── paper1_VACS.tex         # LaTeX source for the paper
+├── data/                           # Benchmark datasets (CSV format)
+│   ├── math_subset.csv             # MathInstruct (Reasoning) subset (N=200)
+│   ├── nejm_qa.csv                 # NEJM-AI QA (Clinical) benchmark
+│   └── cybersec_eval.csv           # CyberSec-Eval (Incident Response) benchmark
+│
+├── experiments/                    # Experiment reproduction scripts
+│   ├── comprehensive_experiments.py # [Main] Runs Table 3 (Accuracy/LIR) & Table 4 (Scalability)
+│   ├── explanation_metric.py       # [Main] Runs Table 7 (Faithfulness Validation)
+│   ├── ablation_study.py           # Runs ablation analysis
+│   ├── run_vacs.py                 # Core runner for VACS pipeline
+│   └── run_baselines.py            # Runner for baseline methods
+│
+├── vacs/                           # Core Framework Implementation
+│   ├── layer1_value_profiling.py   # Layer 1: Bradley-Terry & MaxEnt IRL
+│   ├── layer2_shielding.py         # Layer 2: Lean-DSL Shielding
+│   ├── layer3_consensus.py         # Layer 3: Nucleolus & Hamiltonian Optimization
+│   ├── layer4_explanation.py       # Layer 4: Critical Path Extraction
+│   ├── download_datasets.py        # Utility to fetch real datasets (CyberSecEval)
+│   └── utils.py                    # Helper functions (loading, simulation)
+│
+├── requirements.txt                # Python dependencies
+└── README.md                       # This file
 ```
 
-## Requirements
+## 🛠️ Setup & Requirements
 
-The framework is implemented in Python. Key dependencies include:
+The framework is implemented in Python (3.10+ recommended).
 
-*   `numpy`
-*   `pandas`
-*   `scipy` (for optimization/nucleolus calculation)
-*   `tqdm` (for progress bars)
+1.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Key libraries: `numpy`, `pandas`, `scipy`, `tqdm`, `requests`, `huggingface_hub`.*
 
-Install dependencies via pip:
+2.  **Data Preparation**:
+    The processed datasets are already included in the `data/` folder.
+    *   If you need to re-download the real **CyberSec-Eval** dataset from HuggingFace, run:
+        ```bash
+        python vacs/download_datasets.py
+        ```
+
+## 🚀 Reproducing Results
+
+### 1. Main Performance (Table 3) & Scalability (Table 4)
+To reproduce the accuracy and logical inconsistency rate (LIR) results for VACS and all baselines (Weighted Vote, Shield-Only, etc.) across the three benchmarks:
+
 ```bash
-pip install numpy pandas scipy tqdm
+python experiments/comprehensive_experiments.py
 ```
+*   **Output**: Prints accuracy tables and LIR metrics to the console.
+*   **Note**: This script simulates the full pipeline including baseline comparisons.
 
-## Running Experiments
-
-### 1. Main VACS Performance
-To evaluate VACS on the **MathInstruct** and **NEJM-AI QA** benchmarks and see detailed case outputs:
+### 2. Explanation Faithfulness (Table 7)
+To validate the faithfulness of VACS explanations against baselines (Gradient Saliency, Verifier Trace) using metrics like Sufficiency, Necessity, and Counterfactual Drop:
 
 ```bash
-python experiments/run_vacs.py
+python experiments/explanation_metric.py
 ```
+*   **Output**: Generates a summary table of faithfulness metrics and saves detailed results to `experiments/explanation_results.csv`.
 
-### 2. Ablation Study
-To reproduce the ablation results (Table 3 in the paper), which analyze the contribution of each layer (Profiling, Shielding, Consensus, Explanation):
+### 3. Ablation Study
+To analyze the contribution of each VACS layer (removing Layer 1, Layer 2, etc.):
 
 ```bash
 python experiments/ablation_study.py
 ```
-*This script runs VACS in various configurations (e.g., `no_layer1`, `no_layer2`) and reports Accuracy and Logical Inconsistency Rate (LIR).*
 
-## Datasets
+## 📊 Datasets
 
-The repository includes processed versions of the benchmarks used in the paper:
-*   **MathInstruct-Subset**: A challenging mathematical reasoning dataset (N=200).
-*   **NEJM-AI QA**: A clinical decision-making dataset derived from the New England Journal of Medicine.
+The repository uses three primary benchmarks:
+1.  **MathInstruct-Subset**: A challenging subset of mathematical reasoning tasks requiring rigorous step-by-step logic.
+2.  **NEJM-AI QA**: A clinical decision-making dataset derived from New England Journal of Medicine case challenges.
+3.  **CyberSec-Eval**: A cybersecurity incident response benchmark (derived from WalledAI's instruct dataset) testing safety-critical decision making.
 
-## Citation
+## 🔗 Citation
 
 If you use this code or framework, please cite:
 
 ```bibtex
 @article{vacs2026,
   title={VACS: Value-Aligned Compositional Shielding for Multi-Agent Reasoning},
-  author={[Author Names]},
-  journal={[Journal/Conference]},
+  author={Zhang, Yiyao and Goel, Diksha and Ahmad, Hussain and Shen, Jun},
+  journal={IEEE Transactions on Software Engineering (Under Review)},
   year={2026}
 }
 ```
