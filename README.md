@@ -94,7 +94,7 @@ If you use this code or framework, please cite:
 @article{vacs2026,
   title={VACS: Value-Aligned Compositional Shielding for Multi-Agent Reasoning},
   author={Zhang, Yiyao and Goel, Diksha and Ahmad, Hussain and Shen, Jun},
-  journal={IEEE Transactions on Software Engineering (Under Review)},
+  journal={Under Review},
   year={2026}
 }
 ```
